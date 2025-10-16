@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>NEINEI — Secure Login & Observation</title>
+<style>
+  :root{
+    --bg:#050507;
+    --neon:#00d4ff;
+    --neon-2:#0077ff;
+    --panel:#0b0b0d;
+    --muted:#9aa3aa;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:Inter, 'Courier New', monospace;background:linear-gradient(180deg,#000 0%,#05050a 60%);color:var(--neon)}
+  .wrap{min-height:100%;display:flex;align-items:center;justify-content:center;padding:40px}
+  .card{width:380px;background:radial-gradient(1200px 400px at 10% 10%, rgba(0,212,255,0.03), transparent), var(--panel);border:1px solid rgba(0,212,255,0.08);padding:26px;border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,0.8),0 0 40px rgba(0,212,255,0.06) inset;backdrop-filter: blur(6px)}
+  .brand{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  /* 프로필 로고 이미지로 교체 */
+  .logo{
+    width:48px;
+    height:48px;
+    border-radius:8px;
+    background: url('https://i.pinimg.com/736x/61/aa/db/61aadb2e98ea0a115a48144decbb6577.jpg') no-repeat center/cover;
+    box-shadow:0 0 18px rgba(0,212,255,0.18)
+  }
+  .brand h1 {font-size:18px;margin:0;color:var(--neon);letter-spacing:1px;text-transform:uppercase;text-shadow:0 0 4px var(--neon),0 0 8px var(--neon),0 0 12px var(--neon-2),0 0 16px var(--neon-2),0 0 24px var(--neon-2);}
+  .brand p{margin:0;font-size:11px;color:var(--muted)}
+  label{display:block;font-size:12px;margin:8px 0 6px;color:var(--neon);opacity:0.9}
+  input[type=text],input[type=password]{width:100%;padding:12px;border-radius:8px;border:1px solid rgba(0,212,255,0.06);background:transparent;color:var(--neon);outline:none;font-size:14px}
+  input::placeholder{color:rgba(0,212,255,0.25)}
+  .actions{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+  .btn{padding:10px 16px;border-radius:8px;border:1px solid var(--neon);background:transparent;color:var(--neon);cursor:pointer;font-weight:600}
+  .btn.primary{background:linear-gradient(90deg,var(--neon),var(--neon-2));color:#001;box-shadow:0 6px 18px rgba(0,212,255,0.12)}
+  .hint{font-size:12px;color:var(--muted);margin-top:10px}
+  .welcome{display:none;flex-direction:column;align-items:center;gap:12px}
+  .welcome.active{display:flex}
+  .badge{padding:8px 12px;border-radius:8px;background:linear-gradient(90deg,rgba(0,212,255,0.08),rgba(0,120,255,0.05));border:1px solid rgba(0,212,255,0.12);}
+  .big{font-size:20px;color:var(--neon);letter-spacing:1px}
+  .meta{margin-top:6px;font-size:11px;color:var(--muted);text-align:center}
+  .btn.secondary{margin-top:12px;display:block;width:100%;text-align:center}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card" role="main" aria-labelledby="loginTitle">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1 id="loginTitle">NEINEI LOGIN</h1>
+          <p class="title-glow">Credentials? Just a formality.</p>
+        </div>
+      </div>
+
+      <form id="loginForm" autocomplete="off">
+        <label for="userid">Operator ID</label>
+        <input id="userid" name="userid" type="text" placeholder="Operator ID" required />
+
+        <label for="passwd">Security Passcode</label>
+        <input id="passwd" name="passwd" type="password" placeholder="Security Passcode" required />
+
+        <div class="actions">
+          <button type="submit" class="btn primary">Connect</button>
+        </div>
+
+        <p class="hint">Observation Mode — authenticate your node to begin surveillance.</p>
+      </form>
+
+      <div id="welcomePanel" class="welcome" aria-hidden="true">
+        <div class="badge">접근이 허가되었습니다.</div>
+        <div class="big" id="welcomeName">환영합니다, NEINEI00.</div>
+        <div class="meta">프로필 설정이 완료되었습니다. 관찰 모드에 진입합니다.</div>
+        <button id="enterDiary" class="btn secondary">접속</button>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+  (function(){
+    const VALID_ID = 'neinei00';
+    const VALID_PW = 'nei2nei';
+    const NAME = 'NEINEI00';
+
+    const form = document.getElementById('loginForm');
+    const uid = document.getElementById('userid');
+    const pw = document.getElementById('passwd');
+    const welcome = document.getElementById('welcomePanel');
+    const welcomeName = document.getElementById('welcomeName');
+    const enterDiaryBtn = document.getElementById('enterDiary');
+
+    // 아이디/비번 기억 기능 제거
+    // 항상 로그인 시 입력하도록 변경
+
+    form.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const id = uid.value.trim();
+      const pass = pw.value;
+
+      if(id === VALID_ID && pass === VALID_PW){
+        form.style.display = 'none';
+        welcome.classList.add('active');
+        welcomeName.textContent = `Welcome, ${NAME}`;
+        welcome.setAttribute('aria-hidden','false');
+      } else {
+        const orig = form.style.transform;
+        form.style.transition = 'transform 0.08s';
+        form.style.transform = 'translateX(-8px)';
+        setTimeout(()=> form.style.transform = 'translateX(8px)',80);
+        setTimeout(()=> { form.style.transform = orig; },160);
+      }
+    });
+
+    // 페이지 이동
+    enterDiaryBtn.addEventListener('click', ()=>{
+      window.location.href = 'note.html'; // note.html로 이동
+    });
+
+  })();
+</script>
+</body>
+</html>

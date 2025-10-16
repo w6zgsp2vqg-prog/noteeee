@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEINEI — Write Note</title>
+<style>
+  :root {
+    --bg:#050507;
+    --neon:#00d4ff;
+    --neon-2:#0077ff;
+    --panel:#0b0b0d;
+    --muted:#9aa3aa;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; font-family: Inter, monospace; background: var(--bg); color: var(--neon); height:100%; display:flex; flex-direction: column; }
+
+  .wrap { flex:1; display:flex; flex-direction: column; padding:20px; }
+  label { margin-top:12px; display:block; font-size:14px; }
+  input[type="text"], textarea { width:100%; padding:10px; border-radius:6px; border:1px solid rgba(0,212,255,0.3); background: transparent; color: var(--neon); outline:none; font-size:14px; }
+  textarea { resize:none; height:200px; margin-top:6px; }
+
+  .buttons { margin-top:20px; display:flex; gap:10px; justify-content:flex-end; }
+  .btn { padding: 8px 16px; border-radius:8px; border:1px solid var(--neon); background: transparent; color: var(--neon); cursor:pointer; font-weight:600; }
+  .btn.primary { background: linear-gradient(90deg, var(--neon), var(--neon-2)); color:#001; box-shadow:0 4px 12px rgba(0,212,255,0.12); }
+
+  /* 모달 */
+  .modal-overlay {
+    position: fixed;
+    top:0; left:0; width:100%; height:100%;
+    background: rgba(0,0,0,0.7);
+    display:none;
+    justify-content:center;
+    align-items:center;
+    z-index:100;
+  }
+  .modal {
+    background: var(--panel);
+    border:1px solid rgba(0,212,255,0.3);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow:0 0 20px rgba(0,212,255,0.3);
+    width: 300px;
+    text-align: center;
+    color: var(--neon);
+  }
+  .modal button {
+    margin-top: 12px;
+    padding: 6px 12px;
+    border-radius:6px;
+    border:1px solid var(--neon);
+    background: transparent;
+    color: var(--neon);
+    cursor:pointer;
+    font-weight:600;
+  }
+  .modal button.confirm { background: linear-gradient(90deg,var(--neon),var(--neon-2)); color:#001; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <label for="noteTitle">제목</label>
+  <input type="text" id="noteTitle" placeholder="제목을 입력하세요">
+  
+  <label for="noteContent">내용</label>
+  <textarea id="noteContent" placeholder="내용을 입력하세요"></textarea>
+  
+  <div class="buttons">
+    <button class="btn" id="mainBtn">Main</button>
+    <button class="btn primary" id="uploadBtn">Upload</button>
+  </div>
+</div>
+
+<!-- 업로드 완료 모달 -->
+<div class="modal-overlay" id="uploadModal">
+  <div class="modal">
+    <div>노트가 업로드되었습니다.</div>
+    <button class="confirm" id="uploadOkBtn">OK</button>
+  </div>
+</div>
+
+<script>
+  const uploadBtn = document.getElementById('uploadBtn');
+  const mainBtn = document.getElementById('mainBtn');
+  const uploadModal = document.getElementById('uploadModal');
+  const uploadOkBtn = document.getElementById('uploadOkBtn');
+
+  // Main 버튼 → 메인 페이지
+  mainBtn.addEventListener('click', ()=>{
+    window.location.href = 'note.html';
+  });
+
+  // 업로드 버튼
+  uploadBtn.addEventListener('click', ()=>{
+    const title = document.getElementById('noteTitle').value.trim();
+    const content = document.getElementById('noteContent').value.trim();
+    if(!title || !content){
+      alert('제목과 내용을 모두 입력해주세요.');
+      return;
+    }
+
+    const now = new Date();
+    const dateStr = `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')}`;
+
+    // 기존 노트 가져오기
+    let savedNotes = JSON.parse(localStorage.getItem('notes')) || [];
+    savedNotes.unshift({title, content, date: dateStr});
+    localStorage.setItem('notes', JSON.stringify(savedNotes));
+
+    // 모달 표시
+    uploadModal.style.display = 'flex';
+  });
+
+  uploadOkBtn.addEventListener('click', ()=>{
+    uploadModal.style.display = 'none';
+    // 작성 후 main 페이지로 이동
+    window.location.href = 'note.html';
+  });
+</script>
+
+</body>
+</html>

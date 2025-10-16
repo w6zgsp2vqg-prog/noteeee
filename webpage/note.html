@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEINEI — Notes</title>
+<style>
+:root {
+  --bg:#050507;
+  --neon:#00d4ff;
+  --neon-2:#0077ff;
+  --panel:#0b0b0d;
+  --muted:#9aa3aa;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin:0; padding:0;
+  font-family: Inter, monospace;
+  background: var(--bg);
+  color: var(--neon);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  display:flex;
+  justify-content: space-between;
+  align-items:center;
+  padding:10px 20px;
+  border-bottom:1px solid rgba(0,212,255,0.2);
+}
+.topbar .left, .topbar .center, .topbar .right {
+  display:flex;
+  align-items:center;
+}
+.topbar .center {
+  flex:1;
+  justify-content:center;
+  font-weight:600;
+  letter-spacing:3.0px;
+  font-size:18px;
+}
+
+.clock { font-size:14px; }
+
+.profile, .ai-btn {
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+/* ✅ AI 버튼 간격 + 새 아이콘 적용 */
+.ai-btn {
+  background: none;
+  margin-right: 12px; /* 프로필과 간격 벌리기 */
+}
+.ai-btn svg {
+  width:30px;
+  height:30px;
+  stroke: var(--neon);
+  stroke-width:1.8;
+  fill:none;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.profile {
+  background: url('https://i.pinimg.com/736x/61/aa/db/61aadb2e98ea0a115a48144decbb6577.jpg') no-repeat center/cover;
+}
+
+.content {
+  flex:1;
+  overflow-y:auto;
+  padding:20px;
+  display:flex;
+  flex-direction: column;
+  gap:12px;
+}
+
+.note {
+  position:relative;
+  padding:12px;
+  border-radius:8px;
+  border:1px solid rgba(0,212,255,0.2);
+  background: rgba(0,212,255,0.03);
+  display:flex;
+  flex-direction: column;
+  gap:4px;
+}
+.note-title { font-weight:600; cursor:pointer; }
+.note-date { font-size:11px; color:var(--muted); }
+.note-preview { font-size:13px; color:var(--muted); margin-top:4px; }
+
+.note-actions {
+  position:absolute;
+  right:8px;
+  top:8px;
+  display:flex;
+  gap:8px;
+}
+.icon-btn {
+  background:none;
+  border:none;
+  cursor:pointer;
+  color: var(--neon);
+  font-size:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.icon-btn svg {
+  width:20px;
+  height:20px;
+  stroke: var(--neon);
+  stroke-width:1.5;
+  fill:none;
+}
+
+.bottombar {
+  display:flex;
+  padding:10px 20px;
+  border-top:1px solid rgba(0,212,255,0.2);
+  justify-content:flex-end;
+  align-items:center;
+  height:50px;
+}
+.btn {
+  padding:8px 16px;
+  border-radius:8px;
+  border:1px solid var(--neon);
+  background: transparent;
+  color: var(--neon);
+  cursor:pointer;
+  font-weight:600;
+}
+.btn.primary {
+  background: linear-gradient(90deg, var(--neon), var(--neon-2));
+  color:#001;
+  box-shadow:0 4px 12px rgba(0,212,255,0.12);
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="left">
+    <div class="clock" id="clock">--:--:--</div>
+  </div>
+  <div class="center">
+    NEINEI's PAGE
+  </div>
+  <div class="right">
+    <!-- ✅ AI 버튼 아이콘만 변경됨 -->
+    <div class="ai-btn" id="aiBtn">
+      <svg viewBox="0 0 24 24">
+        <rect x="5" y="5" width="14" height="14" rx="3" ry="3"></rect>
+        <circle cx="9" cy="10" r="1.2"></circle>
+        <circle cx="15" cy="10" r="1.2"></circle>
+        <path d="M8 15h8"></path>
+        <path d="M4 10h1M19 10h1"></path>
+        <path d="M12 3v1M12 20v1"></path>
+      </svg>
+    </div>
+    <div class="profile" id="profileBtn"></div>
+  </div>
+</div>
+
+<div class="content" id="notesContainer"></div>
+
+<div class="bottombar">
+  <button class="btn primary" id="newNoteBtn">작성</button>
+</div>
+
+<div class="modal-overlay" id="deleteModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:100;">
+  <div style="background:var(--panel); border:1px solid rgba(0,212,255,0.3); padding:20px; border-radius:12px; box-shadow:0 0 20px rgba(0,212,255,0.3); width:300px; text-align:center; color:var(--neon);">
+    <div>정말 삭제하시겠습니까?</div>
+    <div style="margin-top:12px; display:flex; justify-content:space-around;">
+      <button id="deleteConfirm" class="btn primary">삭제</button>
+      <button id="deleteCancel" class="btn">유지</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const notesContainer = document.getElementById('notesContainer');
+const newNoteBtn = document.getElementById('newNoteBtn');
+const profileBtn = document.getElementById('profileBtn');
+const aiBtn = document.getElementById('aiBtn');
+let deleteTargetIndex = null;
+
+aiBtn.addEventListener('click', ()=>{
+  window.location.href='ai.html';
+});
+newNoteBtn.addEventListener('click', ()=>{
+  window.location.href = 'write.html';
+});
+profileBtn.addEventListener('click', ()=>{
+  window.location.href = 'profile.html';
+});
+
+function updateClock(){
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth()+1).padStart(2,'0');
+  const d = String(now.getDate()).padStart(2,'0');
+  const h = String(now.getHours()).padStart(2,'0');
+  const mi = String(now.getMinutes()).padStart(2,'0');
+  const s = String(now.getSeconds()).padStart(2,'0');
+  document.getElementById('clock').textContent = `${y}:${m}:${d} ${h}:${mi}:${s}`;
+}
+setInterval(updateClock,1000);
+updateClock();
+
+function getSavedNotes(){ return JSON.parse(localStorage.getItem('notes')) || []; }
+
+function renderNotesList(notesList){
+  notesContainer.innerHTML = '';
+  notesList.forEach((note, idx)=>{
+    const noteDiv = document.createElement('div'); noteDiv.className = 'note';
+    const titleDiv = document.createElement('div'); titleDiv.className = 'note-title'; titleDiv.textContent = note.title;
+    titleDiv.addEventListener('click', ()=>{ window.location.href = `read.html?idx=${note.originalIdx}`; });
+    const dateDiv = document.createElement('div'); dateDiv.className = 'note-date'; dateDiv.textContent = note.date;
+    const previewDiv = document.createElement('div'); previewDiv.className = 'note-preview'; previewDiv.textContent = note.content.split(/\r?\n/)[0];
+    const actionsDiv = document.createElement('div'); actionsDiv.className = 'note-actions';
+    const editBtn = document.createElement('button'); editBtn.className = 'icon-btn';
+    editBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M3 21v-3l12-12 3 3L6 21H3z"></path></svg>`;
+    editBtn.addEventListener('click', ()=>{ window.location.href = `edit.html?idx=${note.originalIdx}`; });
+    const deleteBtn = document.createElement('button'); deleteBtn.className = 'icon-btn';
+    deleteBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M3 6h18M8 6v12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V6M10 6V4a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v2"></path></svg>`;
+    deleteBtn.addEventListener('click', ()=>{ deleteTargetIndex = note.originalIdx; document.getElementById('deleteModal').style.display='flex'; });
+    actionsDiv.appendChild(editBtn);
+    actionsDiv.appendChild(deleteBtn);
+    noteDiv.appendChild(titleDiv);
+    noteDiv.appendChild(dateDiv);
+    noteDiv.appendChild(previewDiv);
+    noteDiv.appendChild(actionsDiv);
+    notesContainer.appendChild(noteDiv);
+  });
+}
+
+function renderAllNotes(){
+  const savedNotes = getSavedNotes();
+  const notesList = savedNotes.map((note, idx)=>({...note, originalIdx: idx}));
+  renderNotesList(notesList);
+}
+
+document.getElementById('deleteConfirm').addEventListener('click', ()=>{
+  const savedNotes = getSavedNotes();
+  if(deleteTargetIndex !== null){
+    savedNotes.splice(deleteTargetIndex,1);
+    localStorage.setItem('notes', JSON.stringify(savedNotes));
+    deleteTargetIndex = null;
+    document.getElementById('deleteModal').style.display='none';
+    renderAllNotes();
+  }
+});
+document.getElementById('deleteCancel').addEventListener('click', ()=>{
+  deleteTargetIndex = null;
+  document.getElementById('deleteModal').style.display='none';
+});
+
+renderAllNotes();
+</script>
+</body>
+</html>

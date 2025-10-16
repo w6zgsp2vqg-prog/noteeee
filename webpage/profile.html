@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEINEI PROFILE</title>
+
+  <!-- 사이버틱 폰트 -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* 전체 화면 기본 설정 */
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: black;
+      color: white;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    /* 캔버스 (코드 떨어지는 배경) */
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.45; /* 불투명도 조절 */
+    }
+
+    /* 중앙 타이틀 */
+    .cyber-title {
+      position: absolute;
+      top: 8%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2.2rem;
+      letter-spacing: 4px;
+      color: #80e0ff;
+      text-shadow:
+        0 0 5px #80e0ff,
+        0 0 15px #00e0ff,
+        0 0 30px #8a2be2,
+        0 0 60px #8a2be2;
+      text-transform: uppercase;
+      font-weight: 600;
+      animation: flicker 2s infinite alternate;
+      z-index: 2;
+      text-align: center;
+    }
+
+    /* 프로필 카드 */
+    .profile-card {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 480px;
+      background: rgba(15, 15, 25, 0.92);
+      border: 2px solid #00e0ff;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow:
+        0 0 15px #00e0ff,
+        0 0 30px #8a2be2;
+      z-index: 2;
+      backdrop-filter: blur(10px);
+    }
+
+    .profile-card h2 {
+      text-align: center;
+      color: #a3e7ff;
+      font-size: 1.3rem;
+      letter-spacing: 2px;
+      margin-bottom: 15px;
+    }
+
+    .profile-data {
+      font-size: 0.95rem;
+      color: #c4f5ff;
+      line-height: 1.8;
+      letter-spacing: 1px;
+    }
+
+    /* 깜박이는 효과 */
+    @keyframes flicker {
+      0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+        opacity: 1;
+      }
+      20%, 24%, 55% {
+        opacity: 0.3;
+      }
+    }
+
+    /* EXIT 버튼 */
+    .exit-btn-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 3;
+    }
+
+    #exitBtn {
+      padding: 10px 20px;
+      border: 2px solid #00e0ff;
+      border-radius: 12px;
+      background: linear-gradient(90deg, rgba(0,224,255,0.2), rgba(138,43,226,0.2));
+      color: #00e0ff;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 600;
+      letter-spacing: 2px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.2s ease-in-out;
+      box-shadow:
+        0 0 5px #00e0ff,
+        0 0 10px #8a2be2;
+    }
+
+    #exitBtn:hover {
+      background: linear-gradient(90deg, rgba(0,224,255,0.6), rgba(138,43,226,0.6));
+      color: #fff;
+      transform: scale(1.05);
+      box-shadow:
+        0 0 10px #00e0ff,
+        0 0 20px #8a2be2,
+        0 0 30px #00e0ff;
+    }
+  </style>
+</head>
+<body>
+  <!-- 흘러내리는 해킹 코드 배경 -->
+  <canvas id="matrix"></canvas>
+
+  <!-- 중앙 타이틀 -->
+  <h1 class="cyber-title">ADMIN ACCOUNT < NEINEI00 > </NEINEI00></h1>
+
+  <!-- 프로필 카드 -->
+  <div class="profile-card">
+    <h2>EXPERIMENTAL RECORD</h2>
+    <div class="profile-data">
+      <p><strong>ID CODE : </strong> NEI-Z1A.v2.07</p>
+      <p><strong>ROLE / TEAM : </strong> Hacker / TEAM RED</p>
+      <p><strong>STATUS : </strong> ONLINE</p>
+      <p><strong>EXPERTISE : </strong> Web Application Penetration Testing </p>
+      <p><strong>AGE / SEX : </strong> 2006.08.19 F</p>
+      <p><strong>LANGUAGE : </strong> KOREAN, ENGLISH, JAPANESE</p>
+      <p><strong>LAST UPDATE : </strong> 2025.10.16</p>
+    </div>
+  </div>
+
+  <!-- Exit 버튼 -->
+  <div class="exit-btn-container">
+    <button id="exitBtn">EXIT</button>
+  </div>
+
+  <script>
+    // === Matrix 해킹 코드 배경 ===
+    const canvas = document.getElementById("matrix");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const letters = "01ABCDEFネイネイΣΩΨΔΞΓβπλシツナミ";
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
+
+    function draw() {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const colors = ["#00e0ff", "#8a2be2", "#66ccff", "#a100ff"];
+      ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+      ctx.font = fontSize + "px monospace";
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = letters.charAt(Math.floor(Math.random() * letters.length));
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.98) {
+          drops[i] = 0;
+        }
+        drops[i] += 0.5;
+      }
+    }
+
+    setInterval(draw, 50);
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    // Exit 버튼 기능
+    document.getElementById('exitBtn').addEventListener('click', () => {
+      window.location.href = 'note.html';
+    });
+  </script>
+</body>
+</html>
